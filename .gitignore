@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.pytest-tmp/
+.ruff_cache/
+*.egg-info/
+data/
+artifacts/
+mlruns/
+*.db
+.env
+*.pt
+*.pth
+coverage.xml
+.coverage

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reliablevision"
+version = "0.1.0"
+description = "Reproducible industrial visual anomaly detection"
+requires-python = ">=3.11"
+dependencies = ["torch>=2.6,<3", "torchvision>=0.21,<1", "numpy>=2,<3", "pillow>=11,<13", "scipy>=1.15,<2", "scikit-learn>=1.6,<2", "mlflow-skinny>=3,<4", "sqlalchemy>=2,<3", "alembic>=1.14,<2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[project.scripts]
+reliablevision = "reliablevision.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--basetemp=.pytest-tmp"

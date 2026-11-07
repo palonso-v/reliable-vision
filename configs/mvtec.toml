@@ -1,0 +1,13 @@
+mode = "mvtec"
+data_root = "data/mvtec_ad"
+category = "bottle"
+image_size = 224
+seed = 42
+validation_fraction = 0.2
+threshold_quantile = 0.99
+coreset_ratio = 0.01
+max_patches = 100000
+max_memory = 1000
+distance_chunk = 1024
+output = "artifacts/bottle"
+tracking_uri = "sqlite:///artifacts/mlflow.db"

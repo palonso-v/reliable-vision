@@ -1,0 +1,12 @@
+mode = "synthetic_smoke"
+category = "synthetic"
+image_size = 32
+seed = 42
+validation_fraction = 0.25
+threshold_quantile = 0.95
+coreset_ratio = 0.1
+max_patches = 2048
+max_memory = 128
+distance_chunk = 256
+output = "artifacts/smoke"
+tracking_uri = "sqlite:///artifacts/mlflow.db"
