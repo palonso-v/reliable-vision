@@ -85,3 +85,106 @@ different costs. Local sequential measurements cannot establish production readi
 3. How do worker count, PyTorch thread count and admission policy affect latency and memory?
 4. Why must image services enforce both compressed-byte and decoded-pixel limits?
 5. What do base-image digests and wheel hashes guarantee, and what must still be measured?
+
+## Real-data checkpoint — initial availability check (historical)
+
+The initial workspace inspection found no MVTec dataset. At that point there were no
+real-data detection/localization metrics, examples or resource measurements to
+interpret. Missing evidence is not a score of zero, and synthetic smoke results
+cannot substitute for real-data validation. The user subsequently supplied bottle;
+the actual results are explained below and in [the validation report](docs/BOTTLE_VALIDATION.md).
+
+Source inspection confirms the intended training/validation/test separation, but
+actual split independence must also be verified on the supplied files. Encoded-file
+hashes catch exact byte copies; re-encoding can evade them. Pixel hashes, similarity
+inspection or acquisition-session metadata can provide additional checks. Test
+labels may be used to compute evaluation metrics, but never to fit the threshold
+or choose a coreset after inspecting final-test performance.
+
+The implemented maximum patch distance omits the original paper's image-score
+reweighting. That can change image rankings and AUROC/AP even when patch maps stay
+the same. A single category, modified preprocessing, a nominal validation holdout
+and bounded memory also prevent direct comparison with a published multi-category
+aggregate. Report the actual method and operating point, including unsuccessful
+experiments, instead of assigning published results to this implementation.
+
+Real-image benchmarking must state both original image dimensions and the tensor
+resolution actually processed by the CNN. Decoding a large source image and then
+resizing to 224x224 is different from native-resolution inference. Latency must
+identify included work, warmups, thread count and concurrency. Process memory
+includes native tensor allocations and model weights; Python-only allocation
+tracking is insufficient. No such real-data measurements have run yet.
+
+### Five technical interview questions
+
+1. What evidence distinguishes a functioning synthetic smoke test from a validated real-data detector?
+2. How would you verify training-only memory-bank construction and validation-only threshold fitting?
+3. Why can identical-file hashes miss leakage, and how would you strengthen the audit?
+4. How can omitting PatchCore image-score reweighting affect image AUROC without changing localization maps?
+5. How would you benchmark latency and peak process memory when source images are resized before inference?
+
+## Real-data checkpoint — bottle results
+
+The fixed CPU run used 167 nominal training images, 42 nominal validation images
+and the complete 83-image final test split. Original images are 900x900; evaluated
+model maps and masks are 224x224. Encoded-file and original decoded-RGB hash checks
+found no exact duplicates. Neither check proves absence of near-duplicate images
+or correlated acquisition sessions.
+
+Clean image AUROC and AP rounded to 1.0000, pixel AUROC was 0.9849 and AUPRO at
+FPR <= 0.30 was 0.9337. This is a strong observed result for bottle at this one
+seed and resolution, not evidence of equivalent behavior on all categories or
+production traffic. AP's stored 0.9999999999999998 is floating-point rounding.
+The threshold 1.9235504865646362 exactly matched recomputation on nominal validation
+and produced TP=63, TN=20, FP=0, FN=0 on the clean test set. With only 20 good test
+images, zero observed false positives does not establish a zero future error rate.
+Raw distances and this threshold do not define probabilities.
+
+Noise severity 3 reduced image AUROC to 0.9254 and AUPRO to 0.7458, while AP stayed
+0.9794. Read these together: AP depends on the high test anomaly prevalence (63/83),
+and apparently strong image-level retrieval can coexist with weaker localization.
+Severe blur reduced AUPRO to 0.8478. Mild blur slightly improved AUPRO (0.9390 vs
+0.9337); that observation alone does not establish a repeatable benefit or justify
+tuning against this final test set. Brightness gains retained image AUROC=1.0,
+but this limited brighter-only stress does not cover dim lighting or all exposure
+changes. Corruptions were applied after resizing, not to original 900x900 images.
+
+Visual inspection showed a small-defect hotspot near its mask and broader regions
+for large-break/contamination examples. A high pixel AUROC and perfect image
+classification do not imply sharp segmentation boundaries. The fixed display scale
+is derived from nominal validation scores, so saturated heatmap colors must not
+be interpreted as calibrated confidence or a fitted pixel decision mask.
+
+The model bank has 1,000 vectors of dimension 1,536 (6,144,000 tensor bytes).
+Because 1% selection is applied after the 100,000-candidate reservoir cap, this is
+about 0.764% of the 130,928 original training patch vectors, not the paper's 1%
+of all candidate patches. CPU full-space greedy construction was expensive: the
+complete fit/evaluation/tracking CLI took 858.93 seconds and peaked near 2.58 GiB
+sampled process-tree RSS. Training/fit time alone was not separately instrumented.
+This illustrates why final bank size is not an estimate of peak construction memory.
+
+The full pretrained detector also costs far more than a weight-free smoke fixture:
+at 224x224, forward p50/p95 was 419/472 ms, while decoding real 900x900 source files,
+resizing and forwarding took 467/523 ms. Peak process RSS across load/warmup/inference
+was about 659 MiB. These are local sequential CPU measurements with two PyTorch
+threads. Native-resolution inference is a separate resource experiment with the
+same 224-trained bank; it does not establish quality at the new resolution.
+
+The native 900x900 resource run used two warmups and ten measured images: forward
+p50/p95 was 6.30/6.42 seconds, with peak process RSS about 835 MiB. It processed
+roughly sixteen times as many input pixels as 224x224 and was much slower. Because
+the bank remained fitted at 224x224, this is a resource-scaling result only; changing
+inference resolution is a model operating-point change that needs fresh validation.
+
+Image-score reweighting from paper equation 7, Gaussian map smoothing, projected
+coreset acceleration and reference embedding/preprocessing details remain omitted
+or different. Perfect category results cannot resolve those methodological differences.
+No production-readiness or paper-level reproduction claim follows from this checkpoint.
+
+### Five technical interview questions about this evaluation
+
+1. Why can AUROC=1 and zero observed false positives on 20 good images still be insufficient deployment evidence?
+2. How did the saved split manifest and validation-only threshold recomputation support the leakage audit, and what remains unproven?
+3. Why did noise yield AP=0.9794 while AUROC and AUPRO degraded more substantially?
+4. Why is a 6 MB memory bank compatible with a roughly 2.58 GiB fitting/evaluation process peak?
+5. Why must native 900x900 inference with a 224-trained bank be reported separately from validated 224x224 quality and latency?

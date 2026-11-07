@@ -12,6 +12,7 @@ dependencies = ["torch>=2.6,<3", "torchvision>=0.21,<1", "numpy>=2,<3", "pillow>
 [project.optional-dependencies]
 serve = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "prometheus-client>=0.21,<1"]
 dev = ["pytest>=8,<10", "ruff>=0.11,<1", "httpx>=0.28,<1"]
+validation = ["psutil==7.2.2"]
 
 [project.scripts]
 reliablevision = "reliablevision.cli:main"

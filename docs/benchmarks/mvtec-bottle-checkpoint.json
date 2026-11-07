@@ -1,0 +1,1181 @@
+{
+  "scope": "Real MVTec AD bottle; one fixed CPU experiment; no production evidence",
+  "host": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "physical_cores": 6,
+    "logical_processors": 12,
+    "psutil": "7.2.2"
+  },
+  "metrics_resolution": [
+    224,
+    224
+  ],
+  "source_dimensions": [
+    900,
+    900
+  ],
+  "audit": {
+    "config": "configs\\mvtec.toml",
+    "counts": {
+      "train": 167,
+      "validation": 42,
+      "test": 83
+    },
+    "test_nominal": 20,
+    "test_anomalous": 63,
+    "original_image_dimensions": {
+      "(900, 900)": 292
+    },
+    "model_input": 224,
+    "encoded_duplicate_check": "passed by existing data.splits",
+    "decoded_rgb_duplicates": [],
+    "limitations": "No near-duplicate or acquisition-session independence guarantee"
+  },
+  "pipeline_profile": {
+    "command": [
+      "python",
+      "-m",
+      "reliablevision.cli",
+      "--config",
+      "configs\\mvtec.toml"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 858.9328540000133,
+    "peak_rss_bytes": 2774130688,
+    "max_individual_os_peak_rss_bytes": 2772185088,
+    "sampling_interval_seconds": 0.25,
+    "memory_scope": "Sampled process-tree RSS; includes Windows launcher and interpreter"
+  },
+  "analysis": {
+    "threshold": 1.9235504865646362,
+    "recomputed_validation_threshold": 1.9235504865646362,
+    "threshold_matches": true,
+    "validation_count": 42,
+    "validation_scores": [
+      1.67280912399292,
+      1.9235504865646362,
+      1.6107077598571777,
+      1.6109468936920166,
+      1.5297670364379883,
+      1.6498242616653442,
+      1.6683918237686157,
+      1.5368859767913818,
+      1.656010389328003,
+      1.5125701427459717,
+      1.6590828895568848,
+      1.6323661804199219,
+      1.4544514417648315,
+      1.528540849685669,
+      1.536652684211731,
+      1.4644386768341064,
+      1.5470771789550781,
+      1.4891408681869507,
+      1.5705262422561646,
+      1.5511993169784546,
+      1.513486623764038,
+      1.6801916360855103,
+      1.5404387712478638,
+      1.706660270690918,
+      1.5742684602737427,
+      1.4457519054412842,
+      1.4985102415084839,
+      1.5018349885940552,
+      1.4966062307357788,
+      1.5123255252838135,
+      1.571974515914917,
+      1.5589609146118164,
+      1.504426121711731,
+      1.4786717891693115,
+      1.8427680730819702,
+      1.6068522930145264,
+      1.522872805595398,
+      1.5545525550842285,
+      1.5359934568405151,
+      1.6324841976165771,
+      1.5117124319076538,
+      1.5741678476333618
+    ],
+    "heatmap_display_max": 1.9235504865646362,
+    "heatmap_display_source": "maximum nominal validation image score",
+    "confusion": {
+      "tp": 63,
+      "fn": 0,
+      "fp": 0,
+      "tn": 20
+    },
+    "test_predictions": [
+      {
+        "id": "test\\broken_large\\000.png",
+        "label": 1,
+        "score": 3.556173086166382,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\001.png",
+        "label": 1,
+        "score": 3.5125632286071777,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\002.png",
+        "label": 1,
+        "score": 3.361830949783325,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\003.png",
+        "label": 1,
+        "score": 3.7841861248016357,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\004.png",
+        "label": 1,
+        "score": 3.8495683670043945,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\005.png",
+        "label": 1,
+        "score": 3.3233063220977783,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\006.png",
+        "label": 1,
+        "score": 3.5734007358551025,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\007.png",
+        "label": 1,
+        "score": 3.301880121231079,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\008.png",
+        "label": 1,
+        "score": 3.445904493331909,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\009.png",
+        "label": 1,
+        "score": 3.217630386352539,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\010.png",
+        "label": 1,
+        "score": 3.5180301666259766,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\011.png",
+        "label": 1,
+        "score": 3.149412155151367,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\012.png",
+        "label": 1,
+        "score": 3.543154001235962,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\013.png",
+        "label": 1,
+        "score": 3.2320358753204346,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\014.png",
+        "label": 1,
+        "score": 3.4249203205108643,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\015.png",
+        "label": 1,
+        "score": 3.417792320251465,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\016.png",
+        "label": 1,
+        "score": 3.3106868267059326,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\017.png",
+        "label": 1,
+        "score": 3.521017551422119,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\018.png",
+        "label": 1,
+        "score": 3.4629263877868652,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_large\\019.png",
+        "label": 1,
+        "score": 3.2439372539520264,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\000.png",
+        "label": 1,
+        "score": 2.4554145336151123,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\001.png",
+        "label": 1,
+        "score": 3.447470188140869,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\002.png",
+        "label": 1,
+        "score": 3.3802437782287598,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\003.png",
+        "label": 1,
+        "score": 3.405653715133667,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\004.png",
+        "label": 1,
+        "score": 3.8093249797821045,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\005.png",
+        "label": 1,
+        "score": 2.8676364421844482,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\006.png",
+        "label": 1,
+        "score": 3.4437596797943115,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\007.png",
+        "label": 1,
+        "score": 2.986577272415161,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\008.png",
+        "label": 1,
+        "score": 3.0596518516540527,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\009.png",
+        "label": 1,
+        "score": 3.39658260345459,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\010.png",
+        "label": 1,
+        "score": 3.505748987197876,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\011.png",
+        "label": 1,
+        "score": 2.732118844985962,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\012.png",
+        "label": 1,
+        "score": 3.6050589084625244,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\013.png",
+        "label": 1,
+        "score": 2.912034034729004,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\014.png",
+        "label": 1,
+        "score": 2.760007619857788,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\015.png",
+        "label": 1,
+        "score": 2.776357412338257,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\016.png",
+        "label": 1,
+        "score": 3.1541645526885986,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\017.png",
+        "label": 1,
+        "score": 3.659693956375122,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\018.png",
+        "label": 1,
+        "score": 3.845473051071167,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\019.png",
+        "label": 1,
+        "score": 3.2311058044433594,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\020.png",
+        "label": 1,
+        "score": 3.6946423053741455,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\broken_small\\021.png",
+        "label": 1,
+        "score": 3.43461012840271,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\000.png",
+        "label": 1,
+        "score": 3.1484408378601074,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\001.png",
+        "label": 1,
+        "score": 2.687666654586792,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\002.png",
+        "label": 1,
+        "score": 2.6948695182800293,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\003.png",
+        "label": 1,
+        "score": 2.03312611579895,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\004.png",
+        "label": 1,
+        "score": 2.2470948696136475,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\005.png",
+        "label": 1,
+        "score": 3.589778423309326,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\006.png",
+        "label": 1,
+        "score": 3.167769432067871,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\007.png",
+        "label": 1,
+        "score": 4.1236162185668945,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\008.png",
+        "label": 1,
+        "score": 2.971036911010742,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\009.png",
+        "label": 1,
+        "score": 3.0663845539093018,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\010.png",
+        "label": 1,
+        "score": 3.2027134895324707,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\011.png",
+        "label": 1,
+        "score": 2.7616240978240967,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\012.png",
+        "label": 1,
+        "score": 2.4407291412353516,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\013.png",
+        "label": 1,
+        "score": 4.358720302581787,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\014.png",
+        "label": 1,
+        "score": 3.4740896224975586,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\015.png",
+        "label": 1,
+        "score": 3.453993320465088,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\016.png",
+        "label": 1,
+        "score": 2.713834762573242,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\017.png",
+        "label": 1,
+        "score": 3.721320629119873,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\018.png",
+        "label": 1,
+        "score": 3.813110828399658,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\019.png",
+        "label": 1,
+        "score": 2.072873830795288,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\contamination\\020.png",
+        "label": 1,
+        "score": 2.6005241870880127,
+        "predicted_anomaly": true
+      },
+      {
+        "id": "test\\good\\000.png",
+        "label": 0,
+        "score": 1.5806454420089722,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\001.png",
+        "label": 0,
+        "score": 1.5912383794784546,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\002.png",
+        "label": 0,
+        "score": 1.5766873359680176,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\003.png",
+        "label": 0,
+        "score": 1.458537220954895,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\004.png",
+        "label": 0,
+        "score": 1.4545314311981201,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\005.png",
+        "label": 0,
+        "score": 1.50789213180542,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\006.png",
+        "label": 0,
+        "score": 1.6495225429534912,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\007.png",
+        "label": 0,
+        "score": 1.5746052265167236,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\008.png",
+        "label": 0,
+        "score": 1.5524579286575317,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\009.png",
+        "label": 0,
+        "score": 1.6720929145812988,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\010.png",
+        "label": 0,
+        "score": 1.52715265750885,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\011.png",
+        "label": 0,
+        "score": 1.5186586380004883,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\012.png",
+        "label": 0,
+        "score": 1.5669296979904175,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\013.png",
+        "label": 0,
+        "score": 1.4864205121994019,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\014.png",
+        "label": 0,
+        "score": 1.5122157335281372,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\015.png",
+        "label": 0,
+        "score": 1.746001958847046,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\016.png",
+        "label": 0,
+        "score": 1.6090846061706543,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\017.png",
+        "label": 0,
+        "score": 1.617628574371338,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\018.png",
+        "label": 0,
+        "score": 1.6013219356536865,
+        "predicted_anomaly": false
+      },
+      {
+        "id": "test\\good\\019.png",
+        "label": 0,
+        "score": 1.720820665359497,
+        "predicted_anomaly": false
+      }
+    ],
+    "examples": [
+      {
+        "selection": "first_broken_large",
+        "id": "test\\broken_large\\000.png",
+        "label": 1,
+        "score": 3.556173086166382,
+        "predicted_anomaly": true,
+        "figure": "first_broken_large.png"
+      },
+      {
+        "selection": "first_broken_small",
+        "id": "test\\broken_small\\000.png",
+        "label": 1,
+        "score": 2.4554145336151123,
+        "predicted_anomaly": true,
+        "figure": "first_broken_small.png"
+      },
+      {
+        "selection": "first_contamination",
+        "id": "test\\contamination\\000.png",
+        "label": 1,
+        "score": 3.1484408378601074,
+        "predicted_anomaly": true,
+        "figure": "first_contamination.png"
+      },
+      {
+        "selection": "first_good",
+        "id": "test\\good\\000.png",
+        "label": 0,
+        "score": 1.5806454420089722,
+        "predicted_anomaly": false,
+        "figure": "first_good.png"
+      }
+    ],
+    "memory_bank_shape": [
+      1000,
+      1536
+    ],
+    "memory_bank_bytes": 6144000,
+    "split_manifest_sha256": "bbc622ee1b31eaa8cede9ca6f48da5afbdefe82222ab1625f8fba4a726592284"
+  },
+  "metrics": {
+    "clean": {
+      "image_auroc": 1.0,
+      "image_ap": 0.9999999999999998,
+      "pixel_auroc": 0.9849321823362878,
+      "aupro_0.30": 0.9336809515118332
+    },
+    "noise_1": {
+      "image_auroc": 0.98015873015873,
+      "image_ap": 0.994640604131948,
+      "pixel_auroc": 0.961796847451546,
+      "aupro_0.30": 0.8105966134059521
+    },
+    "noise_2": {
+      "image_auroc": 0.9603174603174602,
+      "image_ap": 0.9891714843145729,
+      "pixel_auroc": 0.9449481506301913,
+      "aupro_0.30": 0.7712478091890008
+    },
+    "noise_3": {
+      "image_auroc": 0.9253968253968254,
+      "image_ap": 0.9794388040956046,
+      "pixel_auroc": 0.9315565951435161,
+      "aupro_0.30": 0.745787835552597
+    },
+    "blur_1": {
+      "image_auroc": 1.0,
+      "image_ap": 0.9999999999999998,
+      "pixel_auroc": 0.9830686164887517,
+      "aupro_0.30": 0.9390032180121451
+    },
+    "blur_2": {
+      "image_auroc": 0.9976190476190476,
+      "image_ap": 0.9992440151090303,
+      "pixel_auroc": 0.9694593327166003,
+      "aupro_0.30": 0.9037327530339118
+    },
+    "blur_3": {
+      "image_auroc": 0.980952380952381,
+      "image_ap": 0.9939883464810169,
+      "pixel_auroc": 0.9525158908995056,
+      "aupro_0.30": 0.847774433252468
+    },
+    "illumination_1": {
+      "image_auroc": 1.0,
+      "image_ap": 0.9999999999999998,
+      "pixel_auroc": 0.9848086709716573,
+      "aupro_0.30": 0.9326098453544973
+    },
+    "illumination_2": {
+      "image_auroc": 1.0,
+      "image_ap": 0.9999999999999998,
+      "pixel_auroc": 0.9846973860976439,
+      "aupro_0.30": 0.9320086056400453
+    },
+    "illumination_3": {
+      "image_auroc": 1.0,
+      "image_ap": 0.9999999999999998,
+      "pixel_auroc": 0.9844960452759226,
+      "aupro_0.30": 0.9320251847077732
+    }
+  },
+  "benchmark_224": {
+    "data": "real MVTec AD bottle test images",
+    "device": "cpu",
+    "torch_threads": 2,
+    "concurrency": 1,
+    "input_size": 224,
+    "artifact_training_input_size": 224,
+    "native_resolution": false,
+    "artifact_sha256": "557f63f2f06455ee481a9e2f82995cb63ae70ed997eb5dc0462c576db26a52db",
+    "quality_caveat": "Changing inference resolution does not revalidate model quality",
+    "requests": 30,
+    "warmup": 5,
+    "load_seconds": 6.434487199992873,
+    "rss_before_load_bytes": 207781888,
+    "rss_after_load_bytes": 683040768,
+    "rss_end_bytes": 642805760,
+    "sampled_peak_rss_bytes": 690585600,
+    "os_lifetime_peak_rss_bytes": 690585600,
+    "memory_sampling_seconds": 0.02,
+    "memory_scope": "Whole process including imports, model load, warmup and inference",
+    "forward": {
+      "p50_ms": 419.3422999815084,
+      "p95_ms": 471.65993505041115,
+      "mean_ms": 411.8878800072707
+    },
+    "decode_resize_forward": {
+      "p50_ms": 466.71275002881885,
+      "p95_ms": 522.7924999780953,
+      "mean_ms": 459.81075333353755
+    },
+    "samples": [
+      {
+        "image": "test\\broken_large\\000.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.35775519988965243,
+        "decode_resize_forward_seconds": 0.40276719990652055
+      },
+      {
+        "image": "test\\broken_large\\002.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.3655962999910116,
+        "decode_resize_forward_seconds": 0.4075620999792591
+      },
+      {
+        "image": "test\\broken_large\\005.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.352567300084047,
+        "decode_resize_forward_seconds": 0.3959354000398889
+      },
+      {
+        "image": "test\\broken_large\\008.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.3561811000108719,
+        "decode_resize_forward_seconds": 0.39752770005725324
+      },
+      {
+        "image": "test\\broken_large\\011.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.36219760007224977,
+        "decode_resize_forward_seconds": 0.4030256000114605
+      },
+      {
+        "image": "test\\broken_large\\014.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.3359932000748813,
+        "decode_resize_forward_seconds": 0.37860759999603033
+      },
+      {
+        "image": "test\\broken_large\\016.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4006105000153184,
+        "decode_resize_forward_seconds": 0.4420322999358177
+      },
+      {
+        "image": "test\\broken_large\\019.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.41131370002403855,
+        "decode_resize_forward_seconds": 0.4567527000326663
+      },
+      {
+        "image": "test\\broken_small\\002.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4306968000018969,
+        "decode_resize_forward_seconds": 0.4724130999529734
+      },
+      {
+        "image": "test\\broken_small\\005.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.3547679000766948,
+        "decode_resize_forward_seconds": 0.3956412000115961
+      },
+      {
+        "image": "test\\broken_small\\008.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4289575000293553,
+        "decode_resize_forward_seconds": 0.47021100006531924
+      },
+      {
+        "image": "test\\broken_small\\011.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.38172710000071675,
+        "decode_resize_forward_seconds": 0.4245765000814572
+      },
+      {
+        "image": "test\\broken_small\\013.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.37731320003513247,
+        "decode_resize_forward_seconds": 0.4261404999997467
+      },
+      {
+        "image": "test\\broken_small\\016.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.3843101999955252,
+        "decode_resize_forward_seconds": 0.42541839997284114
+      },
+      {
+        "image": "test\\broken_small\\019.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.38558609993197024,
+        "decode_resize_forward_seconds": 0.4271298999665305
+      },
+      {
+        "image": "test\\contamination\\000.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.47499530005734414,
+        "decode_resize_forward_seconds": 0.6028468000004068
+      },
+      {
+        "image": "test\\contamination\\003.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.47288110002409667,
+        "decode_resize_forward_seconds": 0.5281546999467537
+      },
+      {
+        "image": "test\\contamination\\006.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.42949609993956983,
+        "decode_resize_forward_seconds": 0.48028889996930957
+      },
+      {
+        "image": "test\\contamination\\008.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4701674000825733,
+        "decode_resize_forward_seconds": 0.5162387000164017
+      },
+      {
+        "image": "test\\contamination\\011.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.44035309995524585,
+        "decode_resize_forward_seconds": 0.4931205000029877
+      },
+      {
+        "image": "test\\contamination\\014.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4241341999731958,
+        "decode_resize_forward_seconds": 0.47107579989824444
+      },
+      {
+        "image": "test\\contamination\\017.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4522027999628335,
+        "decode_resize_forward_seconds": 0.49767790001351386
+      },
+      {
+        "image": "test\\contamination\\020.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.45740670000668615,
+        "decode_resize_forward_seconds": 0.5031031999969855
+      },
+      {
+        "image": "test\\good\\002.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.44462570000905544,
+        "decode_resize_forward_seconds": 0.4876486000139266
+      },
+      {
+        "image": "test\\good\\004.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.46371559996623546,
+        "decode_resize_forward_seconds": 0.5115740000037476
+      },
+      {
+        "image": "test\\good\\007.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.414550399989821,
+        "decode_resize_forward_seconds": 0.46321449999231845
+      },
+      {
+        "image": "test\\good\\010.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4461535000009462,
+        "decode_resize_forward_seconds": 0.49154850002378225
+      },
+      {
+        "image": "test\\good\\013.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.4253335000248626,
+        "decode_resize_forward_seconds": 0.4738203000742942
+      },
+      {
+        "image": "test\\good\\016.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.39025109994690865,
+        "decode_resize_forward_seconds": 0.440709299989976
+      },
+      {
+        "image": "test\\good\\019.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 0.46479620004538447,
+        "decode_resize_forward_seconds": 0.5075597000541165
+      }
+    ]
+  },
+  "benchmark_900": {
+    "data": "real MVTec AD bottle test images",
+    "device": "cpu",
+    "torch_threads": 2,
+    "concurrency": 1,
+    "input_size": 900,
+    "artifact_training_input_size": 224,
+    "native_resolution": true,
+    "artifact_sha256": "557f63f2f06455ee481a9e2f82995cb63ae70ed997eb5dc0462c576db26a52db",
+    "quality_caveat": "Changing inference resolution does not revalidate model quality",
+    "requests": 10,
+    "warmup": 2,
+    "load_seconds": 6.83096699998714,
+    "rss_before_load_bytes": 207904768,
+    "rss_after_load_bytes": 683651072,
+    "rss_end_bytes": 637906944,
+    "sampled_peak_rss_bytes": 875360256,
+    "os_lifetime_peak_rss_bytes": 875360256,
+    "memory_sampling_seconds": 0.02,
+    "memory_scope": "Whole process including imports, model load, warmup and inference",
+    "forward": {
+      "p50_ms": 6298.804099962581,
+      "p95_ms": 6420.970059960382,
+      "mean_ms": 6287.069379980676
+    },
+    "decode_resize_forward": {
+      "p50_ms": 6348.331899964251,
+      "p95_ms": 6469.484229950467,
+      "mean_ms": 6335.173739981838
+    },
+    "samples": [
+      {
+        "image": "test\\broken_large\\000.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.369454500032589,
+        "decode_resize_forward_seconds": 6.4148452000226825
+      },
+      {
+        "image": "test\\broken_large\\009.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.292679699952714,
+        "decode_resize_forward_seconds": 6.344539299956523
+      },
+      {
+        "image": "test\\broken_large\\018.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.123428299906664,
+        "decode_resize_forward_seconds": 6.165687199914828
+      },
+      {
+        "image": "test\\broken_small\\007.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.419174199923873,
+        "decode_resize_forward_seconds": 6.464118100004271
+      },
+      {
+        "image": "test\\broken_small\\016.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.304928499972448,
+        "decode_resize_forward_seconds": 6.352124499971978
+      },
+      {
+        "image": "test\\contamination\\003.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.217680700006895,
+        "decode_resize_forward_seconds": 6.263914200011641
+      },
+      {
+        "image": "test\\contamination\\012.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.422439399990253,
+        "decode_resize_forward_seconds": 6.473874699906446
+      },
+      {
+        "image": "test\\good\\000.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.211222400073893,
+        "decode_resize_forward_seconds": 6.262409300077707
+      },
+      {
+        "image": "test\\good\\009.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.170355599955656,
+        "decode_resize_forward_seconds": 6.220545799937099
+      },
+      {
+        "image": "test\\good\\019.png",
+        "source_size": [
+          900,
+          900
+        ],
+        "forward_seconds": 6.339330499991775,
+        "decode_resize_forward_seconds": 6.389679100015201
+      }
+    ]
+  },
+  "metadata": {
+    "config": {
+      "mode": "mvtec",
+      "data_root": "data/mvtec_ad",
+      "category": "bottle",
+      "image_size": 224,
+      "seed": 42,
+      "validation_fraction": 0.2,
+      "threshold_quantile": 0.99,
+      "coreset_ratio": 0.01,
+      "max_patches": 100000,
+      "max_memory": 1000,
+      "distance_chunk": 1024,
+      "output": "artifacts/bottle",
+      "tracking_uri": "sqlite:///artifacts/mlflow.db"
+    },
+    "device": "cpu",
+    "python": "3.13.15",
+    "torch": "2.15.0+cpu",
+    "numpy": "2.5.4",
+    "split_sha256": "bbc622ee1b31eaa8cede9ca6f48da5afbdefe82222ab1625f8fba4a726592284",
+    "score_semantics": "raw nearest-neighbor distance; not a probability",
+    "threshold_source": "held-out nominal validation",
+    "preprocessing": "RGB square resize (PIL bicubic); ImageNet mean/std in full mode",
+    "weights": "Wide_ResNet50_2_Weights.IMAGENET1K_V1",
+    "implementation": "PatchCore baseline; max patch score; no paper reweighting"
+  },
+  "registry": {
+    "name": "reliablevision-bottle-mvtec",
+    "version": 1
+  },
+  "run_id": "0629b18a0ddb4e74a8d2b999f21741b6",
+  "artifact_sha256": "557f63f2f06455ee481a9e2f82995cb63ae70ed997eb5dc0462c576db26a52db",
+  "artifact_bytes": 105822047,
+  "pretrained_weights_sha256": "95faca4d11227dddf8633dbb5ff6c8a9003c1aa5b8945c73834b8007b10950b8",
+  "source_sha256": {
+    "src\\reliablevision\\training.py": "6f91ffe725a415cf499d93427f897b905b5b9601b3d737e5cd1cd40b47970cd1",
+    "src\\reliablevision\\model.py": "5488f8fce977ae7fec7f526bc07912f7e0decaa3350a65db2fe9828ebc1f8b09",
+    "src\\reliablevision\\data.py": "bd4d36c135f00c210b0489c279f02a7b1dfc6967728baa5c014ee2a5be5b97e7",
+    "src\\reliablevision\\preprocessing.py": "2749945cd7f61b42ff0ed0e0ad7c8f5296dc903367e64295713150186f585319",
+    "src\\reliablevision\\evaluation.py": "1ff0d1bca2970165da15e1eb0d2c422dfc10a327e76092128ecbafd920a8a8ee"
+  },
+  "raw_resource_profile_sha256": "f1f7d6b3f2bad5458f1c90560672ad09a1d9f6e03a50115c435dfdc48ce04882",
+  "audit_sha256": "f445d43f1e70fd5450a00a13bbb5e28142a2ad200c9ef9887851c3cda8cd2366",
+  "figures_location": "artifacts/bottle/localization; not committed (dataset derivatives)"
+}

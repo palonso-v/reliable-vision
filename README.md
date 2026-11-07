@@ -94,6 +94,14 @@ flowchart LR
 
 See [PLAN.md](PLAN.md), [LEARNING.md](LEARNING.md) and milestone reports under `docs/`.
 
+## Real-data checkpoint
+
+The [bottle validation report](docs/BOTTLE_VALIDATION.md) records the first real
+MVTec AD CPU experiment: complete clean/corruption metrics, data/threshold audit,
+localization examples, actual latency and process memory, paper deviations and
+limitations. Numeric evidence is committed; licensed images and model artifacts
+stay local. This is one-category validation, not a production-readiness claim.
+
 ## Serve an existing model bundle
 
 See [the serving guide](docs/SERVING.md) for the complete API contract, Docker
