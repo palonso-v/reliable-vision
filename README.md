@@ -1,7 +1,8 @@
 # ReliableVision
 
-Industrial visual anomaly detection engineering project. Milestone 1 implements
-the model and evaluation pipeline. Serving and monitoring await milestone approval.
+Industrial visual anomaly detection engineering project. Milestones 1 and 2 implement
+the model/evaluation pipeline and CPU inference API with Docker packaging.
+Monitoring dashboards and drift workflows await Milestone 3 approval.
 This repository has no production deployment evidence.
 
 ## Quick start (PowerShell)
@@ -87,8 +88,26 @@ flowchart LR
     Val --> Bank
     Bank --> Eval[Clean and corrupted test evaluation]
     Eval --> MLflow[Local MLflow tracking]
-    Bank -. Milestone 2 .-> API[FastAPI / Docker]
+    Bank --> API[FastAPI / Docker]
     API -. Milestone 3 .-> Monitor[Prometheus / Grafana / drift / review]
 ```
 
 See [PLAN.md](PLAN.md), [LEARNING.md](LEARNING.md) and milestone reports under `docs/`.
+
+## Serve an existing model bundle
+
+See [the serving guide](docs/SERVING.md) for the complete API contract, Docker
+instructions, concurrency limits, reproducibility and latency measurement.
+
+```powershell
+.\.venv\Scripts\python -m pip install -e '.[serve,dev]'
+.\.venv\Scripts\python -m uvicorn reliablevision.serving.asgi:app --workers 1 --no-access-log
+# Or, after generating artifacts/smoke with the Milestone 1 command:
+docker compose up --build -d --wait
+```
+
+The API loads that bundle's `model.pt`; no training or weight download occurs at
+startup. `/predict` accepts a raw PNG/JPEG body. `/health`, `/model-info` and
+`/metrics` provide readiness, model identity and Prometheus exposition. Responses
+include the model SHA-256, optional registry version, raw score and resized anomaly
+map. Synthetic model responses are explicitly marked.

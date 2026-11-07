@@ -7,6 +7,7 @@ import torch
 from PIL import Image
 
 from reliablevision.config import Config
+from reliablevision.preprocessing import image_tensor
 
 
 @dataclass
@@ -21,7 +22,7 @@ class Sample:
 def load_sample(path: Path, category: Path, size: int) -> Sample:
     label = int(path.parent.name != "good")
     with Image.open(path) as source:
-        pixels = np.array(source.convert("RGB").resize((size, size)), dtype=np.float32) / 255
+        tensor = image_tensor(source, size)
     mask = np.zeros((size, size), dtype=bool)
     if label:
         mask_path = category / "ground_truth" / path.parent.name / f"{path.stem}_mask.png"
@@ -32,7 +33,7 @@ def load_sample(path: Path, category: Path, size: int) -> Sample:
     return Sample(
         str(path.relative_to(category)),
         hashlib.sha256(path.read_bytes()).hexdigest(),
-        torch.from_numpy(pixels).permute(2, 0, 1),
+        tensor,
         mask,
         label,
     )

@@ -10,7 +10,8 @@ requires-python = ">=3.11"
 dependencies = ["torch>=2.6,<3", "torchvision>=0.21,<1", "numpy>=2,<3", "pillow>=11,<13", "scipy>=1.15,<2", "scikit-learn>=1.6,<2", "mlflow-skinny>=3,<4", "sqlalchemy>=2,<3", "alembic>=1.14,<2"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+serve = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "prometheus-client>=0.21,<1"]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "httpx>=0.28,<1"]
 
 [project.scripts]
 reliablevision = "reliablevision.cli:main"

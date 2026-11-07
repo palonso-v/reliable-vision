@@ -1,0 +1,13 @@
+**
+!Dockerfile
+!requirements/
+!requirements/serve.lock
+!src/
+!src/reliablevision/
+!src/reliablevision/**
+src/**/__pycache__/
+!configs/
+!configs/serve.toml
+**/*.pt
+**/*.pth
+**/.env

@@ -1,5 +1,8 @@
 # Implementation plan
 
+Status: Milestone 1 committed; Milestone 2 implemented and validated (see
+`docs/MILESTONE_2.md`); Milestones 3 and 4 require further user approval.
+
 ## Milestone 1 — model and evaluation
 Build an installable typed Python package, TOML configuration, MVTec loader with content-addressed split manifests, frozen pretrained Wide ResNet features, local patch aggregation, deterministic greedy coreset and nearest-neighbor PatchCore scoring. Separate nominal training/validation before fitting. Save a portable versioned model artifact and threshold selected from nominal validation only. Implement image AUROC/AP, pixel AUROC and connected-component AUPRO (FPR <= 0.30), plus deterministic noise, blur and illumination evaluation. Track configurations, metrics and artifacts in local MLflow. Provide offline synthetic CPU smoke mode and leakage/metric/artifact tests.
 

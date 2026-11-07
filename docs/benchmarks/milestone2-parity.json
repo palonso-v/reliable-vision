@@ -1,0 +1,30 @@
+{
+  "model_version": "90f13d8ae82061cc866b53f859dda0571c4ee11568f4a9184f222553da58252d",
+  "model_info": {
+    "model_version": "90f13d8ae82061cc866b53f859dda0571c4ee11568f4a9184f222553da58252d",
+    "artifact_schema": 1,
+    "algorithm": "PatchCore",
+    "category": "synthetic",
+    "data_mode": "synthetic_smoke",
+    "synthetic": true,
+    "device": "cpu",
+    "image_size": 32,
+    "threshold": 0.0069150435738265514,
+    "score_semantics": "raw nearest-neighbor distance; not a probability",
+    "registry_name": "reliablevision-synthetic-synthetic_smoke",
+    "registry_version": 1,
+    "torch_threads": 2,
+    "max_concurrent_predictions": 1
+  },
+  "status": "passed",
+  "checks": [
+    "health",
+    "model-info",
+    "prediction score/map parity",
+    "structured invalid-image error",
+    "metrics"
+  ],
+  "local_score": 0.031989410519599915,
+  "remote_score": 0.031989410519599915,
+  "max_map_absolute_difference": 1.862645149230957e-09
+}

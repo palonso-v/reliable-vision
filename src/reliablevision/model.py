@@ -60,6 +60,7 @@ class PatchCore(nn.Module):
         self.chunk = chunk
         self.smoke = smoke
         self.threshold = float("nan")
+        self.metadata: dict[str, Any] = {}
 
     @torch.inference_mode()
     def fit(
@@ -119,4 +120,5 @@ class PatchCore(nn.Module):
         model.memory = artifact["state"]["memory"]
         model.load_state_dict(artifact["state"])
         model.threshold = artifact["threshold"]
+        model.metadata = artifact["metadata"]
         return model.to(device).eval()

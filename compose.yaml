@@ -1,0 +1,30 @@
+name: reliablevision
+services:
+  api:
+    image: reliablevision:milestone2
+    platform: linux/amd64
+    build:
+      context: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      RV_MODEL_PATH: /app/models/model.pt
+    volumes:
+      - type: bind
+        source: ${RV_MODEL_DIR:-./artifacts/smoke}
+        target: /app/models
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    cpus: 2.0
+    mem_limit: 2g
+    pids_limit: 128
+    stop_grace_period: 30s
