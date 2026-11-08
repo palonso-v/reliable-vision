@@ -1,10 +1,9 @@
 # Implementation plan
 
-Status: Milestone 1 committed; Milestone 2 implemented and validated (see
-`docs/MILESTONE_2.md`); Milestone 3 is implemented and validated locally.
-The intervening real-data bottle checkpoint is recorded in `docs/BOTTLE_VALIDATION.md`.
-See `docs/MILESTONE_3.md` for local validation
-and limitations. Milestone 4 remains pending user approval.
+Status: **all four milestones implemented and locally validated**. See
+`docs/FINAL_REPORT.md` for the final verification ledger and remaining limitations.
+The real-data bottle checkpoint is recorded in `docs/BOTTLE_VALIDATION.md`.
+No production deployment or hosted CI execution is implied.
 
 ## Milestone 1 — model and evaluation
 Build an installable typed Python package, TOML configuration, MVTec loader with content-addressed split manifests, frozen pretrained Wide ResNet features, local patch aggregation, deterministic greedy coreset and nearest-neighbor PatchCore scoring. Separate nominal training/validation before fitting. Save a portable versioned model artifact and threshold selected from nominal validation only. Implement image AUROC/AP, pixel AUROC and connected-component AUPRO (FPR <= 0.30), plus deterministic noise, blur and illumination evaluation. Track configurations, metrics and artifacts in local MLflow. Provide offline synthetic CPU smoke mode and leakage/metric/artifact tests.

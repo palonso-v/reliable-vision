@@ -126,6 +126,7 @@ docker compose config --quiet
 # Once per model bundle; skip when its approved reference already exists:
 .\.venv\Scripts\python scripts/build_drift_reference.py --artifact artifacts/smoke/model.pt
 docker compose build api
+docker run --rm --user 0 --mount "type=bind,source=${PWD},target=/workspace" --entrypoint python reliablevision:local /workspace/scripts/prepare_state.py
 docker compose up -d --wait
 curl.exe http://127.0.0.1:8000/health
 docker compose logs api

@@ -246,3 +246,147 @@ storage and metrics aggregation. Activity-driven row pruning is not secure erasu
 3. Why did the baseline simulation create score-based reviews despite no brightness-drift flags, and what evidence would diagnose it?
 4. How do transactional review persistence and fail-closed inference trade durability against availability?
 5. How would you estimate actual deployed performance without treating the selection-biased review queue as a representative labeled dataset?
+
+## Milestone 4 — understanding the complete system
+
+The system has four evidence boundaries. Offline data preparation establishes
+which nominal examples may fit a memory bank. Validation sets a fixed operational
+threshold; final-test labels are used only for reporting. A saved artifact carries
+the fitted state into serving, where shared preprocessing and parity checks keep
+the evaluated algorithm intact. Monitoring then observes operations and input
+statistics; human decisions create new evidence without automatically changing
+the model. None of those boundaries turns raw distances into probabilities.
+
+The complete synthetic integration test now fits/evaluates a model, builds its
+training-only fixed reference, loads it in FastAPI, observes a drift window,
+persists/resolves a review and checks it after restart. It also rejects a modified
+split manifest and reference overwrite. This tests component contracts rather
+than merely asserting that each module exists. Real bottle measurements remain
+separate: tests cannot substitute for labeled industrial data or operational use.
+
+Several engineering choices deliberately limit scope. SQLite and a single worker
+keep local state understandable; they do not solve distributed consistency.
+Histogram TV is interpretable but misses semantic shifts. Fail-closed review
+storage improves traceability while reducing availability. Not retaining images
+reduces privacy exposure but forces reviewers to obtain separately governed context.
+Frozen references require deliberate replacement rather than absorbing drift.
+
+Reproducibility includes the operating environment and filesystem. Windows and
+Linux use different wheel builds and need separate tracking DBs because artifact
+URIs can embed host paths. A fresh Linux bind mount needs the non-root container
+UID to own its state directory. A constrained clean Linux installation passed
+the test suite and synthetic training workflow, while its minimal serving image
+reported missing Git for MLflow's optional source tags. Explicit manifests and
+model identity still matter; do not silently claim those tags were captured.
+
+GitHub Actions is an executable delivery specification, not proof that a hosted
+run happened. Local equivalents must be reported as local checks until actual
+workflow evidence is available. Likewise, shipping Compose is not production
+deployment. Portfolio readiness means another engineer can inspect the claims,
+run the project and understand what the evidence does and does not establish.
+
+### Realistic technical interview questions and answers
+
+The final real-image check also demonstrated numerical portability limits: Windows
+and Linux preprocessing tensors were byte-identical, and same-Linux-runtime maps
+were exact, but 18 map pixels exceeded a tight cross-platform comparison tolerance.
+Maximum difference was 3.255e-5 while image scores matched exactly. The verification
+client keeps its strict default and records any explicitly chosen map tolerance.
+Such a tolerance is not a decision threshold and does not justify changing the
+model after final-test evaluation; larger discrepancies require investigation.
+
+1. **What did you contribute if PatchCore already exists?**
+   I implemented a reproducible baseline and the engineering around it: partition
+   integrity, evaluation, artifact contracts, serving parity, monitoring, review
+   durability, tests and delivery checks. I did not invent PatchCore or claim the
+   paper's full benchmark performance.
+
+2. **How does this detector learn without defect labels?**
+   A frozen pretrained CNN supplies local features; fitting stores representative
+   nominal patches in a coreset memory bank. Large nearest-neighbor distances
+   indicate novelty. No defect classifier or gradient fine-tuning is fitted.
+
+3. **Why reserve normal validation images when the model is unsupervised?**
+   The image decision still needs an operating threshold. Independent nominal
+   validation avoids setting it from the same examples used to fill the bank or
+   from final-test defects. With 42 scores and a 0.99 higher quantile, the threshold
+   is the largest validation score, not a guaranteed 1% deployed false-positive rate.
+
+4. **How do you prevent leakage, and what is still unproven?**
+   The memory bank receives only the seeded nominal training partition. Encoded
+   and decoded hashes audit exact duplicates; manifests record partitions, and
+   threshold recomputation checks validation-only selection. Near duplicates and
+   shared acquisition sessions need additional metadata or similarity review.
+
+5. **Why report AUROC, AP, pixel AUROC and AUPRO?**
+   Image AUROC describes ranking across classes; AP emphasizes positive retrieval
+   and depends on prevalence. Pixel AUROC can be dominated by large background
+   areas. AUPRO weights connected defect regions equally and focuses integration
+   on low background false-positive rates. None alone establishes deployment quality.
+
+6. **How can image AUROC be perfect but the system still have limitations?**
+   This is one category with 20 good and 63 defective test images. Ranking can be
+   perfect while boundaries are diffuse, noise degrades localization, unseen
+   categories fail or a deployed threshold behaves differently. Confidence about
+   future performance requires broader, independent evidence.
+
+7. **Why is the final memory bank small while construction consumes gigabytes?**
+   The 1,000x1,536 float32 bank occupies about 6 MB, but building it requires many
+   candidate features and temporary full-space distance tensors. The recorded
+   2.58 GiB peak also includes imports, images and the full evaluation/tracking
+   pipeline. Bank tensor bytes do not estimate process peak RSS.
+
+8. **How does the implementation differ from the original paper?**
+   It uses maximum raw patch distance without equation 7 image-score reweighting,
+   no Gaussian map smoothing, full-space greedy selection after a capped reservoir,
+   and different embedding/preprocessing details. These affect both results and
+   cost. I disclose them rather than call the experiment an exact reproduction.
+
+9. **How do you know serving uses the evaluated model?**
+   FastAPI calls `PatchCore.load` and the shared image transformation, with no
+   alternate scoring implementation. Tests compare scores/maps to direct artifact
+   inference. The artifact hash identifies the bytes; optional registry metadata
+   adds context. Artifact files must remain trusted and immutable during serving.
+
+10. **Why does `async def` not make CPU inference parallel?**
+    A PyTorch forward still consumes CPU and can block the event loop. The service
+    offloads decoding/forward work to a thread but admits one prediction at a time,
+    rejecting overlaps with 503. Extra processes duplicate memory and would need
+    coordinated windows and multiprocess metrics rather than a worker-count toggle.
+
+11. **What does input drift tell you about accuracy?**
+    Only that the monitored input summaries differ from a fixed nominal reference.
+    Lighting changes may be benign; semantic defects can be invisible to global
+    brightness. The demo's baseline score flags without drift illustrate this
+    separation. Representative labeled outcomes are needed to establish degradation.
+
+12. **Why not adapt the reference continuously?**
+    A rolling reference can normalize away a persistent fault or shift. Keeping a
+    model-bound fixed reference makes changes auditable. It can become stale, so
+    replacement should be an explicit offline decision with validation, not an
+    automatic response to incoming traffic.
+
+13. **What happens if review persistence fails?**
+    Window/review inserts roll back together, the buffer does not advance, and
+    enabled monitoring returns a sanitized 503. That fail-closed policy trades
+    availability for traceability. Client retries have new IDs, so it does not
+    guarantee exactly-once delivery or authenticated reviewer identity.
+
+14. **How can a human review a prediction when images are not retained?**
+    The queue provides metadata and identifiers, not a reconstructed image. A
+    reviewer needs separately governed source context; without it, insufficient
+    evidence is the honest decision. Collecting only flagged reviews would also
+    bias any attempted estimate of overall accuracy.
+
+15. **What makes setup reproducible, and what still varies?**
+    Resolved config, seeds, manifests, weights, artifact hashes and package/runtime
+    versions fix major inputs. CPU wheel hashes and image digests strengthen the
+    serving environment. Device algorithms, host contention, filesystem behavior,
+    version changes and build timestamps still prevent a universal bitwise guarantee.
+
+16. **What would you do before real deployment?**
+    Validate more representative categories/acquisition sessions with an independent
+    evaluation protocol; calibrate operating thresholds and alert budgets without
+    final-test tuning. Add required authentication/TLS, retention/backup controls,
+    image-review governance and load/operational evidence. Those are targeted next
+    steps, not reasons to introduce a new orchestration platform prematurely.

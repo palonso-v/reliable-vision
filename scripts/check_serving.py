@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import io
 import json
+import math
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -21,11 +22,22 @@ def main() -> None:
     parser.add_argument("--url", default="http://127.0.0.1:8000")
     parser.add_argument("--artifact", type=Path, default=Path("artifacts/smoke/model.pt"))
     parser.add_argument("--output", type=Path, default=Path("artifacts/docker-check.json"))
+    parser.add_argument("--image", type=Path, help="Optional real PNG input inside workspace")
+    parser.add_argument(
+        "--map-atol",
+        type=float,
+        default=1e-5,
+        help="Explicit map comparison absolute tolerance; not a detector threshold",
+    )
     args = parser.parse_args()
     if any(
         not p.resolve().is_relative_to(Path.cwd().resolve()) for p in (args.artifact, args.output)
     ):
         parser.error("Artifact and output must stay inside workspace")
+    if args.image is not None and not args.image.resolve().is_relative_to(Path.cwd().resolve()):
+        parser.error("Image must stay inside workspace")
+    if not math.isfinite(args.map_atol) or not 0 <= args.map_atol <= 1e-3:
+        parser.error("Map tolerance must be finite and between zero and 1e-3")
     torch.set_num_threads(2)
     model = PatchCore.load(args.artifact)
     size = model.metadata["config"]["image_size"]
@@ -40,15 +52,24 @@ def main() -> None:
     source = Image.fromarray(pixels)
     payload = io.BytesIO()
     source.save(payload, "PNG")
+    if args.image is not None:
+        with Image.open(args.image) as image:
+            if image.format != "PNG":
+                parser.error("Real input check supports PNG images")
+            source = image.convert("RGB")
+        payload = io.BytesIO(args.image.read_bytes())
     request = urllib.request.Request(
         f"{args.url}/predict", data=payload.getvalue(), headers={"Content-Type": "image/png"}
     )
     with urllib.request.urlopen(request, timeout=30) as response:
         result = json.load(response)
         assert result["request_id"] == response.headers["x-request-id"]
-    score, maps = model(image_tensor(source, size)[None])
+    batch = image_tensor(source, size)[None]
+    score, maps = model(batch)
     np.testing.assert_allclose(result["score"], float(score[0]), rtol=1e-4, atol=1e-5)
-    np.testing.assert_allclose(result["anomaly_map"], maps[0].numpy(), rtol=1e-4, atol=1e-5)
+    np.testing.assert_allclose(
+        result["anomaly_map"], maps[0].numpy(), rtol=1e-4, atol=args.map_atol
+    )
     assert result["model_version"] == digest
     assert result["is_anomaly"] == (result["score"] > model.threshold)
     bad_request = urllib.request.Request(
@@ -75,6 +96,9 @@ def main() -> None:
         ],
         "local_score": float(score[0]),
         "remote_score": result["score"],
+        "source_size": list(source.size),
+        "preprocessing_sha256": hashlib.sha256(batch.numpy().tobytes()).hexdigest(),
+        "map_comparison": {"rtol": 1e-4, "atol": args.map_atol},
         "max_map_absolute_difference": float(
             np.max(np.abs(np.array(result["anomaly_map"]) - maps[0].numpy()))
         ),

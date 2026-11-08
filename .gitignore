@@ -10,6 +10,13 @@ artifacts/
 mlruns/
 *.db
 .env
+.env.*
+!.env.example
+.aws/
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
 *.pt
 *.pth
 coverage.xml

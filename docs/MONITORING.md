@@ -10,7 +10,9 @@ once before starting the now monitoring-enabled Compose stack:
 ```powershell
 .\.venv\Scripts\python scripts/build_drift_reference.py --artifact artifacts/smoke/model.pt
 docker compose config --quiet
-docker compose up --build -d --wait
+docker compose build api
+docker run --rm --user 0 --mount "type=bind,source=${PWD},target=/workspace" --entrypoint python reliablevision:local /workspace/scripts/prepare_state.py
+docker compose up -d --wait
 .\.venv\Scripts\python scripts/simulate_traffic.py
 .\.venv\Scripts\python scripts/check_monitoring.py
 ```
@@ -51,9 +53,11 @@ Verification artifacts are under ignored `artifacts/`. Compose shutdown preserve
 the database and monitoring histories in workspace bind mounts under
 `artifacts/monitoring`, `artifacts/prometheus` and `artifacts/grafana`.
 Linux hosts need those bind directories writable by the container service UIDs
-(API 10001; inspect pinned Prometheus/Grafana images for their UIDs). Docker Desktop
-was used for validation. Do not grant general filesystem access to fix a permission
-error; scope ownership/permissions to these generated state directories.
+(API 10001, Prometheus 65534, Grafana 472). The initializer above creates only
+workspace state directories with their scoped container ownership; it does not
+change repository-wide permissions. Docker Desktop was used for stack validation.
+See [reproducibility instructions](REPRODUCIBILITY.md) for both platforms and
+isolating model/review state with `RV_MODEL_DIR` and `RV_STATE_DIR`.
 
 ## Fixed-reference statistical method
 

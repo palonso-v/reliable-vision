@@ -13,20 +13,21 @@ from reliablevision.monitoring import input_features, reference_document
 from reliablevision.preprocessing import image_tensor
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--artifact", type=Path, default=Path("artifacts/smoke/model.pt"))
-    args = parser.parse_args()
-    artifact = args.artifact.resolve()
+def build_reference(artifact: Path) -> Path:
+    artifact = artifact.resolve()
     if not artifact.is_relative_to(Path.cwd().resolve()):
-        parser.error("Artifact must stay in workspace")
+        raise ValueError("Artifact must stay in workspace")
     output = artifact.parent / "drift-reference.json"
     if output.exists():
-        parser.error("Reference already exists; do not overwrite an approved reference")
+        raise FileExistsError("Reference already exists; do not overwrite an approved reference")
     model = PatchCore.load(artifact)
     config = model.metadata["config"]
     manifest_path = artifact.parent / "splits.json"
-    entries = json.loads(manifest_path.read_text())["train"]
+    manifest_bytes = manifest_path.read_bytes()
+    manifest_hash = hashlib.sha256(manifest_bytes).hexdigest()
+    if manifest_hash != model.metadata.get("split_sha256"):
+        raise ValueError("Split manifest hash does not match the model artifact")
+    entries = json.loads(manifest_bytes)["train"]
     values = []
     if config["mode"] == "synthetic_smoke":
         nominal, _ = synthetic(config["seed"], config["image_size"])
@@ -38,6 +39,8 @@ def main() -> None:
             values.append(input_features(sample.image))
     else:
         category = (Path(config["data_root"]) / config["category"]).resolve()
+        if not category.is_relative_to(Path.cwd().resolve()):
+            raise ValueError("Training data must stay inside workspace")
         for entry in entries:
             relative = Path(entry["id"].replace("\\", "/"))
             path = (category / relative).resolve()
@@ -55,11 +58,23 @@ def main() -> None:
         {
             "source": "artifact training partition only",
             "data_mode": config["mode"],
-            "split_manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+            "split_manifest_sha256": manifest_hash,
         },
     )
     output.write_text(json.dumps(reference, indent=2), encoding="utf-8")
-    print(f"Fixed reference: {output}; nominal training samples: {len(values)}")
+    return output
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--artifact", type=Path, default=Path("artifacts/smoke/model.pt"))
+    args = parser.parse_args()
+    try:
+        output = build_reference(args.artifact)
+    except (ValueError, FileExistsError) as error:
+        parser.error(str(error))
+    count = json.loads(output.read_text())["count"]
+    print(f"Fixed reference: {output}; nominal training samples: {count}")
 
 
 if __name__ == "__main__":

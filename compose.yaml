@@ -1,7 +1,7 @@
 name: reliablevision
 services:
   api:
-    image: reliablevision:milestone3
+    image: reliablevision:local
     platform: linux/amd64
     build:
       context: .
@@ -19,7 +19,7 @@ services:
         read_only: true
         bind:
           create_host_path: false
-      - ./artifacts/monitoring:/app/state
+      - ${RV_STATE_DIR:-./artifacts/monitoring}:/app/state
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777

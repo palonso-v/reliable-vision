@@ -3,14 +3,26 @@
 import argparse
 import json
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
 
 
 def get(url: str) -> dict:
-    with urllib.request.urlopen(url, timeout=15) as response:
-        return json.load(response)
+    # Compose can start Grafana before its provisioning API is ready.
+    deadline = time.monotonic() + 30
+    while True:
+        try:
+            with urllib.request.urlopen(url, timeout=5) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as error:
+            if error.code not in {404, 502, 503, 504} or time.monotonic() >= deadline:
+                raise
+        except urllib.error.URLError:
+            if time.monotonic() >= deadline:
+                raise
+        time.sleep(1)
 
 
 def main() -> None:
