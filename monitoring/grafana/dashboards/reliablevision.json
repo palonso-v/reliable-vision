@@ -1,0 +1,194 @@
+{
+  "uid": "reliablevision",
+  "title": "ReliableVision local monitoring — simulation is labeled",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Prediction throughput (requests/s)",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(traffic) (rate(rv_http_requests_total{route=\"/predict\"}[1m]))",
+          "legendFormat": "{{traffic}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "p95 request handling / forward (seconds)",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by(le,traffic) (rate(rv_http_request_seconds_bucket{route=\"/predict\"}[1m])))",
+          "legendFormat": "{{traffic}} / handling"
+        },
+        {
+          "refId": "B",
+          "expr": "histogram_quantile(0.95, sum by(le,traffic) (rate(rv_inference_seconds_bucket[1m])))",
+          "legendFormat": "{{traffic}} / forward"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "HTTP errors by status (count / minute)",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(status,traffic) (increase(rv_http_errors_total[1m]))",
+          "legendFormat": "{{traffic}} / {{status}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Loaded model artifact identity",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rv_model_info",
+          "instant": true,
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Input drift TV distance (0–1); not accuracy",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rv_input_drift_tv",
+          "legendFormat": "{{traffic}} / {{feature}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Last window drift flag (traffic separated)",
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rv_input_drift_flag",
+          "legendFormat": "{{traffic}}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Raw anomaly distances — cumulative bucket rates (not probabilities)",
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by(le,traffic) (rate(rv_anomaly_score_bucket[1m]))",
+          "legendFormat": "{{traffic}} / distance <= {{le}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Monitoring persistence errors",
+      "gridPos": {
+        "x": 12,
+        "y": 24,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "reliablevision-prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "increase(rv_monitoring_failures_total[1m])"
+        }
+      ]
+    }
+  ]
+}

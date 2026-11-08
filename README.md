@@ -2,7 +2,8 @@
 
 Industrial visual anomaly detection engineering project. Milestones 1 and 2 implement
 the model/evaluation pipeline and CPU inference API with Docker packaging.
-Monitoring dashboards and drift workflows await Milestone 3 approval.
+Milestone 3 adds local monitoring dashboards, fixed-reference input drift and
+persistent human review. Final integration/documentation is Milestone 4.
 This repository has no production deployment evidence.
 
 ## Quick start (PowerShell)
@@ -89,7 +90,7 @@ flowchart LR
     Bank --> Eval[Clean and corrupted test evaluation]
     Eval --> MLflow[Local MLflow tracking]
     Bank --> API[FastAPI / Docker]
-    API -. Milestone 3 .-> Monitor[Prometheus / Grafana / drift / review]
+    API --> Monitor[Prometheus / Grafana / drift / review]
 ```
 
 See [PLAN.md](PLAN.md), [LEARNING.md](LEARNING.md) and milestone reports under `docs/`.
@@ -111,6 +112,8 @@ instructions, concurrency limits, reproducibility and latency measurement.
 .\.venv\Scripts\python -m pip install -e '.[serve,dev]'
 .\.venv\Scripts\python -m uvicorn reliablevision.serving.asgi:app --workers 1 --no-access-log
 # Or, after generating artifacts/smoke with the Milestone 1 command:
+# Build once per bundle; skip if its approved reference already exists:
+.\.venv\Scripts\python scripts/build_drift_reference.py --artifact artifacts/smoke/model.pt
 docker compose up --build -d --wait
 ```
 
@@ -119,3 +122,9 @@ startup. `/predict` accepts a raw PNG/JPEG body. `/health`, `/model-info` and
 `/metrics` provide readiness, model identity and Prometheus exposition. Responses
 include the model SHA-256, optional registry version, raw score and resized anomaly
 map. Synthetic model responses are explicitly marked.
+
+Compose now enables monitoring and requires an approved `drift-reference.json`
+beside the mounted artifact. Generate it once with
+`python scripts/build_drift_reference.py --artifact artifacts/smoke/model.pt`
+before the Compose command. See [MONITORING.md](docs/MONITORING.md) for the local
+Prometheus/Grafana stack, explicitly simulated traffic and review workflow.

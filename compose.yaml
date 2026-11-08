@@ -1,7 +1,7 @@
 name: reliablevision
 services:
   api:
-    image: reliablevision:milestone2
+    image: reliablevision:milestone3
     platform: linux/amd64
     build:
       context: .
@@ -9,6 +9,9 @@ services:
       - "127.0.0.1:8000:8000"
     environment:
       RV_MODEL_PATH: /app/models/model.pt
+      RV_MONITORING: "1"
+      RV_REFERENCE_PATH: /app/models/drift-reference.json
+      RV_DATABASE: /app/state/monitor.sqlite
     volumes:
       - type: bind
         source: ${RV_MODEL_DIR:-./artifacts/smoke}
@@ -16,6 +19,7 @@ services:
         read_only: true
         bind:
           create_host_path: false
+      - ./artifacts/monitoring:/app/state
     read_only: true
     tmpfs:
       - /tmp:size=64m,mode=1777
@@ -28,3 +32,41 @@ services:
     mem_limit: 2g
     pids_limit: 128
     stop_grace_period: 30s
+  prometheus:
+    image: prom/prometheus:v3.10.0@sha256:4a61322ac1103a0e3aea2a61ef1718422a48fa046441f299d71e660a3bc71ae9
+    ports:
+      - "127.0.0.1:9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus:ro
+      - ./artifacts/prometheus:/prometheus
+    depends_on:
+      api:
+        condition: service_healthy
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  grafana:
+    image: grafana/grafana:12.3.1@sha256:2175aaa91c96733d86d31cf270d5310b278654b03f5718c59de12a865380a31f
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_AUTH_BASIC_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_PLUGINS_PREINSTALL_DISABLED: "true"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+      - ./artifacts/grafana:/var/lib/grafana
+    depends_on: [prometheus]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

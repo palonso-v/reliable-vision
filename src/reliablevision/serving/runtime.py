@@ -11,6 +11,7 @@ import torch
 from PIL import Image, UnidentifiedImageError
 
 from reliablevision.model import PatchCore
+from reliablevision.monitoring import input_features
 from reliablevision.preprocessing import image_tensor
 from reliablevision.serving.settings import Settings
 
@@ -105,6 +106,7 @@ class Runtime:
                 ) from error
             score, anomaly_map, seconds = self.infer(tensor[None])
             return {
+                "_input_features": input_features(tensor),
                 "score": score,
                 "is_anomaly": score > self.model.threshold,
                 "threshold": self.model.threshold,

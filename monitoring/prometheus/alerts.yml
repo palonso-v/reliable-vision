@@ -1,0 +1,18 @@
+groups:
+  - name: reliablevision
+    rules:
+      - alert: ReliableVisionInputDrift
+        expr: (rv_input_drift_flag == 1) and on(job, instance, traffic) (time() - rv_input_drift_last_window_timestamp_seconds < 300)
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: Input brightness distribution changed (traffic={{ $labels.traffic }})
+          description: A fresh window differs from its fixed reference. This is not proof of model degradation.
+      - alert: ReliableVisionErrors
+        expr: sum by(traffic) (rate(rv_http_errors_total{route="/predict"}[2m])) > 0.1
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: Prediction errors exceed local demonstration threshold

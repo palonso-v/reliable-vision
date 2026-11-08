@@ -188,3 +188,61 @@ No production-readiness or paper-level reproduction claim follows from this chec
 3. Why did noise yield AP=0.9794 while AUROC and AUPRO degraded more substantially?
 4. Why is a 6 MB memory bank compatible with a roughly 2.58 GiB fitting/evaluation process peak?
 5. Why must native 900x900 inference with a 224-trained bank be reported separately from validated 224x224 quality and latency?
+
+## Milestone 3 — monitoring, drift and human review
+
+Service health and model quality require different evidence. Counters, latency
+histograms and errors describe operations. A model-info metric identifies the
+loaded artifact but does not supply accuracy labels. Bound metric labels: arbitrary
+request IDs or filenames would create unbounded time-series cardinality and can
+leak customer information. Prometheus histogram quantiles are bucket approximations.
+
+This milestone monitors two input summaries, luminance mean and population standard
+deviation. The reference is a fixed aggregate histogram from nominal training images,
+versioned by file hash and tied to the exact model hash. Ten predefined bins allow
+an interpretable total variation statistic, half the sum of absolute bin-frequency
+differences. Zero means matching histograms; one means disjoint bins. The threshold
+0.30 with windows of 20 is a demo effect-size heuristic, not a p-value or guaranteed
+false-alarm rate. Binning, small samples and serial dependence matter.
+
+Fixed references prevent silently learning a shifted stream as the new normal.
+They also age; replacement needs deliberate offline validation rather than an
+automatic rolling update. Simulated and unspecified traffic are separated so demo
+events cannot silently contaminate another traffic window. Partial windows reset
+on process restart, while completed windows and last-state metrics are recoverable.
+Freshness is essential: an old drift flag is not current evidence.
+
+The actual simulation produced baseline brightness TV distances 0.067/0.083 and
+shifted-window distances 1.0/1.0. The simulated Prometheus drift alert fired. Yet
+the model also flagged 20 of 40 baseline images for review without input drift.
+That mismatch shows why these brightness statistics cannot certify score stability
+or model quality. It is a toy-fixture observation, not an industrial error-rate
+measurement. No threshold was retuned to hide it.
+
+Input drift describes a change in measured input distribution. Performance
+degradation requires labeled outcomes, representative sampling and an evaluation
+protocol. A harmless lighting change can trigger drift; a new defect type can
+harm performance without changing global brightness. Review queues are biased
+toward flagged cases, so their labels alone cannot estimate overall accuracy.
+
+Human review here means an explicit pending-to-resolved categorical decision with
+model/reference identity and timestamps. It does not mean automatic retraining or
+authenticated multi-user auditing. The schema deliberately omits images, filenames,
+client identity and free text. Reviewers need external governed context to confirm
+a defect; otherwise insufficient evidence is an honest outcome. Minimized metadata
+can still have sensitivity and needs access control, retention and backup policies.
+
+Persisting a drift window and review together avoids partial records. Advance the
+buffer only after transaction commit. The chosen fail-closed behavior returns 503
+if monitoring cannot persist a prediction. This improves review durability at the
+cost of inference availability. It does not guarantee exactly-once client delivery.
+SQLite suits this one-worker demo; distributed workers need coordinated windows,
+storage and metrics aggregation. Activity-driven row pruning is not secure erasure.
+
+### Five technical interview questions
+
+1. Why can a drift alert fire without accuracy loss, or accuracy fall without an input-drift alert?
+2. What do histogram TV distance, fixed bins and a fixed reference make interpretable, and which changes can they miss?
+3. Why did the baseline simulation create score-based reviews despite no brightness-drift flags, and what evidence would diagnose it?
+4. How do transactional review persistence and fail-closed inference trade durability against availability?
+5. How would you estimate actual deployed performance without treating the selection-biased review queue as a representative labeled dataset?

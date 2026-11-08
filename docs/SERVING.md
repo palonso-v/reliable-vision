@@ -108,8 +108,8 @@ bounded route/method/status labels and provides throughput and failure counts.
 `rv_predictions_active` measures admitted requests through prediction completion;
 `rv_anomaly_score` records raw-distance distributions. No image content, request
 IDs or filenames become metric labels. Metric scrapes themselves count as requests
-and appear on the following scrape. Dashboards and scraping services arrive in
-Milestone 3.
+and appear on the following scrape. [MONITORING.md](MONITORING.md) documents the
+provisioned dashboards, fixed-reference drift checks and persistent review workflow.
 
 Application request and model-load logs are JSON with UTC timestamps. Each request
 records route, status, request ID and elapsed time; payloads and arbitrary URL paths
@@ -123,6 +123,8 @@ Docker Desktop/Linux engine must be running. From the workspace:
 
 ```powershell
 docker compose config --quiet
+# Once per model bundle; skip when its approved reference already exists:
+.\.venv\Scripts\python scripts/build_drift_reference.py --artifact artifacts/smoke/model.pt
 docker compose build api
 docker compose up -d --wait
 curl.exe http://127.0.0.1:8000/health

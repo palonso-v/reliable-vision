@@ -1,15 +1,17 @@
 import json
 import logging
+import sqlite3
 import threading
 import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
+from pathlib import Path
 from time import perf_counter
-from typing import Any
+from typing import Any, Literal
 
 import anyio
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from prometheus_client import (
@@ -24,6 +26,7 @@ from pydantic import BaseModel, ConfigDict
 from starlette.exceptions import HTTPException
 from starlette.requests import ClientDisconnect
 
+from reliablevision.monitoring import FEATURES, Monitor
 from reliablevision.serving.runtime import APIError, Runtime
 from reliablevision.serving.settings import Settings
 
@@ -54,6 +57,12 @@ class Prediction(ModelInfo):
     map_shape: list[int]
     map_coordinates: str
     inference_seconds: float
+    monitoring: dict[str, Any]
+
+
+class ReviewDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    decision: Literal["confirmed_anomaly", "false_alarm", "insufficient_evidence"]
 
 
 class JsonFormatter(logging.Formatter):
@@ -95,40 +104,103 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     requests = Counter(
         "rv_http_requests_total",
         "Completed API requests",
-        ["route", "method", "status"],
+        ["route", "method", "status", "traffic"],
         registry=registry,
     )
     latency = Histogram(
         "rv_http_request_seconds",
         "Request time including serialization",
-        ["route"],
+        ["route", "traffic"],
         registry=registry,
     )
     inference = Histogram(
         "rv_inference_seconds",
         "Model forward time only",
+        ["traffic"],
         registry=registry,
         buckets=(0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 5),
     )
     scores = Histogram(
         "rv_anomaly_score",
         "Raw distance distribution, not probabilities",
+        ["traffic"],
         registry=registry,
         buckets=(0.01, 0.1, 0.5, 1, 2, 5, 10, 25, 50, 100),
     )
     active = Gauge("rv_predictions_active", "Admitted prediction requests", registry=registry)
     admission = threading.Lock()
+    model_identity = Gauge(
+        "rv_model_info",
+        "Loaded artifact identity",
+        ["model_version", "data_mode"],
+        registry=registry,
+    )
+    errors = Counter(
+        "rv_http_errors_total", "HTTP errors", ["route", "status", "traffic"], registry=registry
+    )
+    drift_distance = Gauge(
+        "rv_input_drift_tv",
+        "Last completed window total variation distance",
+        ["feature", "traffic"],
+        registry=registry,
+    )
+    drift_flag = Gauge(
+        "rv_input_drift_flag",
+        "Last completed window flagged (not performance loss)",
+        ["traffic"],
+        registry=registry,
+    )
+    windows = Counter(
+        "rv_drift_windows_total",
+        "Completed fixed reference windows",
+        ["traffic", "flagged"],
+        registry=registry,
+    )
+    monitoring_failures = Counter(
+        "rv_monitoring_failures_total", "Monitoring storage failures", registry=registry
+    )
+    drift_updated = Gauge(
+        "rv_input_drift_last_window_timestamp_seconds",
+        "Window freshness",
+        ["traffic"],
+        registry=registry,
+    )
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.runtime = Runtime(settings or Settings.from_env())
+        chosen = app.state.runtime.settings
+        app.state.monitor = (
+            Monitor(
+                Path(chosen.database),
+                Path(chosen.reference),
+                app.state.runtime.info["model_version"],
+                chosen.drift_window,
+                chosen.drift_threshold,
+                chosen.retention_days,
+            )
+            if chosen.monitoring
+            else None
+        )
+        model_identity.labels(
+            app.state.runtime.info["model_version"], app.state.runtime.info["data_mode"]
+        ).set(1)
+        if app.state.monitor is not None:
+            for window in app.state.monitor.latest_windows():
+                traffic = window["traffic"]
+                drift_flag.labels(traffic).set(window["flagged"])
+                for feature, value in json.loads(window["statistics"]).items():
+                    drift_distance.labels(feature, traffic).set(value)
+                drift_updated.labels(traffic).set(
+                    datetime.fromisoformat(window["created_at"]).timestamp()
+                )
         logger.info("model_loaded", extra={"fields": app.state.runtime.info})
         try:
             yield
         finally:
             app.state.runtime = None
 
-    app = FastAPI(title="ReliableVision", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(title="ReliableVision", version="0.3.0", lifespan=lifespan)
 
     @app.middleware("http")
     async def instrument(request: Request, call_next: Any) -> Response:
@@ -150,11 +222,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             response = error_response(request, 500, "internal_error", "Internal inference error")
         duration = perf_counter() - start
         route = getattr(request.scope.get("route"), "path", "other")
-        if route not in {"/predict", "/health", "/model-info", "/metrics"}:
+        if route not in {
+            "/predict",
+            "/health",
+            "/model-info",
+            "/metrics",
+            "/reviews",
+            "/reviews/{review_id}",
+        }:
             route = "other"
         method = request.method if request.method in {"GET", "POST", "HEAD", "OPTIONS"} else "other"
-        requests.labels(route, method, str(response.status_code)).inc()
-        latency.labels(route).observe(duration)
+        traffic = "control"
+        if route == "/predict":
+            traffic = request.headers.get("x-rv-traffic", "unspecified")
+            if traffic not in {"simulated", "unspecified"}:
+                traffic = "unspecified"
+        requests.labels(route, method, str(response.status_code), traffic).inc()
+        if response.status_code >= 400:
+            errors.labels(route, str(response.status_code), traffic).inc()
+        latency.labels(route, traffic).observe(duration)
         logger.info(
             "request_completed",
             extra={
@@ -164,6 +250,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "method": method,
                     "status": response.status_code,
                     "duration_seconds": duration,
+                    "traffic": traffic,
                 }
             },
         )
@@ -198,6 +285,37 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/metrics", include_in_schema=False)
     async def metrics() -> Response:
         return Response(generate_latest(registry), headers={"Content-Type": CONTENT_TYPE_LATEST})
+
+    def require_monitor(request: Request) -> Monitor:
+        if request.app.state.monitor is None:
+            raise APIError(503, "monitoring_disabled", "Review monitoring is not enabled")
+        return request.app.state.monitor
+
+    @app.exception_handler(sqlite3.Error)
+    async def storage_error(request: Request, error: sqlite3.Error) -> JSONResponse:
+        monitoring_failures.inc()
+        return error_response(
+            request, 503, "monitoring_unavailable", "Monitoring storage unavailable"
+        )
+
+    @app.get("/reviews")
+    def reviews(
+        request: Request,
+        status: Literal["pending", "resolved"] = "pending",
+        limit: int = Query(default=50, ge=1, le=100),
+    ) -> dict[str, Any]:
+        return {"items": require_monitor(request).list_reviews(status, limit)}
+
+    @app.patch("/reviews/{review_id}")
+    def resolve_review(
+        request: Request, review_id: uuid.UUID, body: ReviewDecision
+    ) -> dict[str, str]:
+        result = require_monitor(request).resolve(review_id.hex, body.decision)
+        if result == "missing":
+            raise APIError(404, "review_not_found", "Review record does not exist")
+        if result == "conflict":
+            raise APIError(409, "review_already_resolved", "Review decision is immutable")
+        return {"id": review_id.hex, "status": result, "decision": body.decision}
 
     @app.post(
         "/predict",
@@ -245,9 +363,34 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if not body:
                 raise APIError(422, "empty_image", "Image body is empty")
             result = await anyio.to_thread.run_sync(runtime.predict, bytes(body), media_type)
-            inference.observe(result["inference_seconds"])
-            scores.observe(result["score"])
-            return {"request_id": request.state.request_id, **result}
+            features = result.pop("_input_features")
+            traffic = request.headers.get("x-rv-traffic", "unspecified")
+            if traffic not in {"unspecified", "simulated"}:
+                raise APIError(
+                    422, "invalid_traffic_label", "Traffic must be unspecified or simulated"
+                )
+            monitor = request.app.state.monitor
+            observation = {"enabled": False, "traffic": traffic}
+            if monitor is not None:
+                observation = await anyio.to_thread.run_sync(
+                    monitor.observe,
+                    features,
+                    result["score"],
+                    result["threshold"],
+                    request.state.request_id,
+                    traffic,
+                )
+                if observation["window_complete"]:
+                    for feature in FEATURES:
+                        drift_distance.labels(feature, traffic).set(
+                            observation["distances"][feature]
+                        )
+                    drift_flag.labels(traffic).set(int(observation["input_drift"]))
+                    windows.labels(traffic, str(observation["input_drift"]).lower()).inc()
+                    drift_updated.labels(traffic).set(datetime.now(UTC).timestamp())
+            inference.labels(traffic).observe(result["inference_seconds"])
+            scores.labels(traffic).observe(result["score"])
+            return {"request_id": request.state.request_id, "monitoring": observation, **result}
         finally:
             active.dec()
             admission.release()
